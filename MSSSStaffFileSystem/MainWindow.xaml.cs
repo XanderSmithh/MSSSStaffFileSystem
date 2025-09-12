@@ -49,7 +49,7 @@ namespace MSSSStaffFileSystem
             lbStaffList.ItemsSource = dictionaryManager.ReturnStaffList();
         }
 
-        // Filtered Staff Listbox Display
+        // Filtered Staff Listbox Display BROKEN FIX ME, WHEN NO MATCH I BREAK 
         public void DisplayFilteredStaffList(string filter)
         {
             lbFilteredStaffList.ItemsSource = null;
