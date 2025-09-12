@@ -1,0 +1,104 @@
+﻿<Window x:Class="MSSSStaffFileSystem.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Staff Selector" Height="720" Width="1080"
+        WindowStartupLocation="CenterScreen">
+    
+    <Grid Background="#FFF9F9F9" Margin="16">
+        <Grid.RowDefinitions>
+            <!-- Search -->
+            <RowDefinition Height="Auto"/>
+            <!-- Lists -->
+            <RowDefinition Height="*"/>
+            <!-- Name/Number -->
+            <RowDefinition Height="Auto"/>
+            <!-- Keyboard shortcut display -->
+            <RowDefinition Height="Auto"/>
+            <!-- Status bar -->
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Search bar + action button -->
+        <DockPanel Grid.Row="0" LastChildFill="True" Margin="0,0,0,12">
+            <Button x:Name="btnSearch" DockPanel.Dock="Right" Width="100" Height="30" Margin="12,0,0,0" Content="Search"/>
+            <TextBox x:Name="tbSearch" Height="30" VerticalAlignment="Center" ToolTip="Search Bar" TextChanged="tbFilter_TextChanged"/>
+        </DockPanel>
+
+        <!-- Dual listboxes with move buttons -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <!-- center controls -->
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left list -->
+            <GroupBox Header="All Staff ListBox" Margin="0,0,8,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="5"/>
+                    </Grid.ColumnDefinitions> 
+                    
+                    <ListBox x:Name="lbStaffList" Margin="0" IsHitTestVisible="True" Focusable="True" />
+                    <!-- Optional splitter against center -->
+                    <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Right"
+
+                                  Background="#22000000" ShowsPreview="True"/>
+                </Grid>
+            </GroupBox>
+
+
+            <!-- Right list -->
+            <GroupBox Grid.Column="2" Header="Filtered Staff Listbox" Margin="8,0,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- Optional splitter against center -->
+                    <GridSplitter Grid.Column="0" Width="5" HorizontalAlignment="Left"
+                                  Background="#22000000" ShowsPreview="True"/>
+                    
+                    <ListBox x:Name="lbFilteredStaffList" Grid.Column="1" Margin="0" />
+                </Grid>
+            </GroupBox>
+        </Grid>
+
+        <!-- Name / Number row -->
+        <Grid Grid.Row="2" Margin="0,12,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="24"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Text="Name:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBox x:Name="NameBox" Grid.Column="1" Height="28"/>
+
+            <TextBlock Grid.Column="3" Text="Number:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBox x:Name="NumberBox" Grid.Column="4" Height="28"/>
+        </Grid>
+
+        <!-- Keyboard shortcut display -->
+        <Border Grid.Row="3" BorderBrush="#33000000" BorderThickness="1" CornerRadius="6" Padding="14" Background="White">
+            <TextBlock x:Name="ShortcutDisplay"
+
+                       Text="Keyboard Shortcut Display"
+
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+
+        <!-- Status bar -->
+        <StatusBar Grid.Row="4" Margin="0,12,0,0">
+            <StatusBarItem>
+                <TextBlock x:Name="StatusText" Text="Ready" />
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>
+
+ 
