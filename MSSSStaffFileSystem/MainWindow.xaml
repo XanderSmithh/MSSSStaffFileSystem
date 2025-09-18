@@ -35,14 +35,14 @@
             </Grid.ColumnDefinitions>
 
             <!-- Left list -->
-            <GroupBox Header="All Staff ListBox" Margin="0,0,8,0">
+            <GroupBox Header="All Staff ListBox" Margin="0,0,8,0" >
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="5"/>
                     </Grid.ColumnDefinitions>
 
-                    <ListBox x:Name="lbStaffList" Margin="0" IsHitTestVisible="True" Focusable="True" PreviewMouseLeftButtonUp="lbStaffList_ItemClicked"/>
+                    <ListBox x:Name="lbStaffList" Margin="0" IsHitTestVisible="False" Focusable="True" PreviewMouseLeftButtonUp="lbStaffList_ItemClicked"/>
                     <!-- Optional splitter against center -->
                     <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Right"
 
@@ -126,13 +126,14 @@
 
                     <!-- Buttons -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
-                        <Button Content="Add" Width="70" Margin="5,0" />
-                        <Button Content="Update" Width="70" Margin="5,0" />
-                        <Button Content="Delete" Width="70" Margin="5,0" />
+                        <Button Content="Add" Width="70" Margin="5,0" Click="btnAdminAdd_Click"/>
+                        <Button Content="Update" Width="70" Margin="5,0" Click="btnAdminUpdate_Click"/>
+                        <Button Content="Delete" Width="70" Margin="5,0" Click="btnAdminDelete_Click"/>
+                        <Button Content="Clear" Width="70" Margin="5,0" Click="btnAdminClear_Click"/>
                     </StackPanel>
 
                     <!-- Close button -->
-                    <Button Content="Close" Width="70" HorizontalAlignment="Center" Click="ClosePopup_Click"/>
+                    <Button Content="Close" Width="70" HorizontalAlignment="Center" Click="btnClosePopup_Click"/>
                 </StackPanel>
             </Border>
         </Popup>

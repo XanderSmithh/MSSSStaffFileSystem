@@ -12,9 +12,6 @@ using System.Windows.Shapes;
 
 namespace MSSSStaffFileSystem
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         DictionaryManager dictionaryManager = new DictionaryManager();
@@ -31,23 +28,63 @@ namespace MSSSStaffFileSystem
         }
 
 
-        private void tbFilter_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            string filter = tbSearch.Text;
 
-            DisplayFilteredStaffList(filter);
+        // BUTTON METHODS
+
+        private void btnAdminAdd_Click(object sender, RoutedEventArgs e)
+        {
+            var newStaff = CreateStaff(); 
+            if (newStaff.HasValue) 
+            {
+                AddToStaffList(newStaff.Value.staffId, newStaff.Value.staffName);
+                DisplayStaffList();
+            }
+        }
+
+        private void btnAdminUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateStaff();
+            DisplayStaffList();
+        }
+
+        private void btnAdminDelete_Click(object sender, RoutedEventArgs e)
+        {
+            DeleteStaff();
+            DisplayStaffList();
+        }
+
+        private void btnAdminClear_Click(object sender, RoutedEventArgs e)
+        {
+            txtAdminStaffID.Text = string.Empty;
+            txtAdminStaffName.Text = string.Empty;
+        }
+
+        private void btnClosePopup_Click(object sender, RoutedEventArgs e)
+        {
+            adminPopup.IsOpen = false;
+            fileManager.SaveAsCsv(dictionaryManager.ReturnStaffList());
+        }
+
+        private void btnSearch_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("I do nothing lol...");
         }
 
 
-        // Staff Listbox Display 
+
+
+
+        // GUI METHODS
+
         public void DisplayStaffList()
         {
-            lbStaffList.ItemsSource = null;
-            lbStaffList.ItemsSource = dictionaryManager.ReturnStaffList();
+            lbStaffList.Items.Clear();
+            foreach (var kvp in dictionaryManager.ReturnStaffList())
+            {
+                lbStaffList.Items.Add($"[{kvp.Key}, {kvp.Value}]");
+            }
         }
 
-
-        // Displays matching values with entered characters, Filtered Staff Listbox Display 
         public void DisplayFilteredStaffList(string filter)
         {
             dictionaryManager.ClearSortedStaffList();
@@ -56,14 +93,20 @@ namespace MSSSStaffFileSystem
             if (string.IsNullOrWhiteSpace(filter)) return;
             foreach (var kvp in dictionaryManager.ReturnStaffList())
             {
-                if (kvp.Value.Contains(filter, StringComparison.OrdinalIgnoreCase))
+                if (kvp.Value.Contains(filter, StringComparison.OrdinalIgnoreCase) || // Checks for matching KvP
+                    kvp.Key.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase))
                 {
                     dictionaryManager.InsertIntoSortedStaffList(kvp.Key, kvp.Value);
-                    lbFilteredStaffList.Items.Add($"{kvp.Key}, {kvp.Value}");
+                    lbFilteredStaffList.Items.Add($"[{kvp.Key}, {kvp.Value}]");
                 }
             }
         }
 
+        private void tbFilter_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string filter = tbSearch.Text;
+            DisplayFilteredStaffList(filter);
+        }
 
         private void lbFilteredStaffList_ItemClicked(object sender, MouseButtonEventArgs e)
         {
@@ -85,13 +128,31 @@ namespace MSSSStaffFileSystem
 
         private void PopulateStaffTextBox(string selectedItem)
         {
-            string key = selectedItem.Split(',')[2];
-            string value = selectedItem.Split(',')[1];
+            string key = selectedItem.Split(',')[1];
+            string value = selectedItem.Split(',')[0];
 
             txtNameBox.Text = key.Trim(']', ' ');
-            txtNumberBox.Text = value.Trim();
-
+            txtNumberBox.Text = value.Trim('[',' ');
         }
+
+        public void FocusStaffNameField()
+        {
+            txtNameBox.Text = string.Empty;
+            txtNameBox.Focus();
+        }
+
+        public void FocusNumberNameField()
+        {
+            txtNumberBox.Text = string.Empty;
+            txtNumberBox.Focus();
+        }
+
+        private void AdminGuiValueAssign()
+        {
+            txtAdminStaffID.Text = txtNumberBox.Text;
+            txtAdminStaffName.Text = txtNameBox.Text;
+        }
+
 
 
 
@@ -136,45 +197,67 @@ namespace MSSSStaffFileSystem
                 e.Handled = true;
             }
 
-
-
+            else if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt) && e.Key == Key.L || e.SystemKey == Key.L)
+            {
+                adminPopup.IsOpen = false;
+                fileManager.SaveAsCsv(dictionaryManager.ReturnStaffList());
+                e.Handled = true;
+            }
         }
 
 
-        // Textbox Focus ( ID Textbox & Name TextBox).
-        public void FocusStaffNameField()
+
+
+        // ADMIN GUI METHODS
+
+        public (int staffId, string staffName)? CreateStaff()
         {
-            txtNameBox.Text = string.Empty;
-            txtNameBox.Focus();
+            if (!string.IsNullOrWhiteSpace(txtAdminStaffName.Text))
+            {
+                string staffName = txtAdminStaffName.Text;
+                int staffId;
+                var staffList = dictionaryManager.ReturnStaffList();
+
+                var rnd = new Random();
+
+                // Gets a random 77 number whilst ensuring it's not duplicating an existing number
+                do
+                {
+                    staffId = 770000000 + rnd.Next(0, 10000000);
+                } while (staffList.ContainsKey(staffId)); // ensure unique
+
+                return (staffId, staffName);
+            }
+
+            return null; // nothing to create
         }
 
-        public void FocusNumberNameField()
+        private void UpdateStaff()
         {
-            txtNumberBox.Text = string.Empty;
-            txtNumberBox.Focus();
+            string staffName = txtAdminStaffName.Text;
+            if (int.TryParse(txtAdminStaffID.Text, out int staffId) && !string.IsNullOrWhiteSpace(staffName))
+            {
+                if (dictionaryManager.ReturnStaffList().ContainsKey(staffId))
+                {
+                    dictionaryManager.UpdateKvpStaffList(staffId, staffName);
+                }
+            }
         }
 
-
-
-        // Assigns Values in txtNameBox & txtNumberBox to related admin Popup textboxes.
-        private void AdminGuiValueAssign()
+        private void DeleteStaff()
         {
-            txtAdminStaffID.Text = txtNumberBox.Text;
-            txtAdminStaffName.Text = txtNameBox.Text;
+            if (int.TryParse(txtAdminStaffID.Text, out int staffId))
+            {
+                dictionaryManager.RemoveKvpStaffList(staffId);
+            }
         }
 
-
-
-        // Sets popup to fasle when the close button inside of the popup is clicked by User
-        private void ClosePopup_Click(object sender, RoutedEventArgs e)
+        private void AddToStaffList(int staffId, string staffName)
         {
-            adminPopup.IsOpen = false;
+            dictionaryManager.InsertIntoStaffList(staffId, staffName);
         }
 
-        // Does stuff 
-        private void btnSearch_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("I do nothing lol...");
-        }
+
+
     }
 }

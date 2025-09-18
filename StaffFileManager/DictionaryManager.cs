@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StaffFileManager
 {
     public class DictionaryManager
     {
         private Dictionary<int, string> staffList = new Dictionary<int, string>();
-        
-        private SortedDictionary<int, string> sortedStaffList= new SortedDictionary<int, string>();
 
+        private SortedDictionary<int, string> sortedStaffList = new SortedDictionary<int, string>();
+
+
+        // Staff Dictionary Methods
         public void PopulateStaffList()
         {
             FileManager fileManager = new FileManager();
@@ -23,10 +22,31 @@ namespace StaffFileManager
             return staffList;
         }
 
+        public void InsertIntoStaffList(int key, string value)
+        {
+            if (!string.IsNullOrWhiteSpace(value) && !staffList.ContainsKey(key))
+                staffList.Add(key, value);
+        }
+
+        public void UpdateKvpStaffList(int key, string value)
+        {
+            if (!string.IsNullOrWhiteSpace(value) && staffList.ContainsKey(key))
+                staffList[key] = value;
+        }
+
+        public void RemoveKvpStaffList(int key)
+        {
+            staffList.Remove(key);
+        }
+
+
+
+        // Sorted Staff Dictionary Methods
         public SortedDictionary<int, string> ReturnSortedStaffList()
         {
             return sortedStaffList;
         }
+
         public void ClearSortedStaffList()
         {
             sortedStaffList.Clear();
@@ -34,7 +54,19 @@ namespace StaffFileManager
 
         public void InsertIntoSortedStaffList(int key, string value)
         {
-            sortedStaffList.Add(key, value);
+            if (!string.IsNullOrWhiteSpace(value) && !sortedStaffList.ContainsKey(key))
+                sortedStaffList.Add(key, value);
         }
+
+        public void UpdateSortedKvp(int key, string value)
+        {
+            if (!string.IsNullOrWhiteSpace(value) && sortedStaffList.ContainsKey(key))
+                sortedStaffList[key] = value;
+        }
+        public void RemoveKvpFilteredStaffList(int key)
+        {
+            sortedStaffList.Remove(key);
+        }
+
     }
 }

@@ -11,27 +11,31 @@ namespace StaffFileManager
 
         public Dictionary<int, string> LoadFromCsv()
         {
+            var result = new Dictionary<int, string>();
             try
             {
                 string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MalinStaffNamesV3.csv");
+                var lines = File.ReadAllLines(filePath)
+                                .Where(line => !string.IsNullOrWhiteSpace(line));
 
-
-                var lines = File.ReadAllLines(filePath);
-
-                // Dictionary where key = line index + 1, value = staff name
-                var result = lines
-                    .Where(line => !string.IsNullOrWhiteSpace(line))
-                    .Select((line, index) => new { Index = index + 1, Name = line.Trim() })
-                    .ToDictionary(x => x.Index, x => x.Name);
-
-                return result;
+                foreach (var line in lines)
+                {
+                    var parts = line.Split(',');
+                    if (parts.Length >= 2 && int.TryParse(parts[0].Trim(), out int staffId))
+                    {
+                        string staffName = parts[1].Trim();
+                        if (!result.ContainsKey(staffId))
+                            result.Add(staffId, staffName);
+                    }
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error loading CSV: {ex.Message}");
-                return new Dictionary<int, string>();
             }
+            return result;
         }
+
 
 
 
@@ -39,15 +43,16 @@ namespace StaffFileManager
         {
             try
             {
-                string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MalinStaffNamesV3.csv");
+                string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MalinStaffNamesV3.1.csv"); // File Path
 
-                File.WriteAllLines(filePath, staffData.Values);
+                var lines = staffData.Select(kvp => $"{kvp.Key},{kvp.Value}"); // Saves Key and Value to one line
+                File.WriteAllLines(filePath, lines);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error saving CSV: {ex.Message}");
             }
-        }
-
     }
+
+}
 }
