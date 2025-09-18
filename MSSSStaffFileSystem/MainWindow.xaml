@@ -2,8 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Staff Selector" Height="720" Width="1080"
-        WindowStartupLocation="CenterScreen">
-    
+        WindowStartupLocation="CenterScreen"
+        KeyDown="Window_KeyDown">
+
     <Grid Background="#FFF9F9F9" Margin="16">
         <Grid.RowDefinitions>
             <!-- Search -->
@@ -20,7 +21,7 @@
 
         <!-- Search bar + action button -->
         <DockPanel Grid.Row="0" LastChildFill="True" Margin="0,0,0,12">
-            <Button x:Name="btnSearch" DockPanel.Dock="Right" Width="100" Height="30" Margin="12,0,0,0" Content="Search"/>
+            <Button x:Name="btnSearch" DockPanel.Dock="Right" Width="100" Height="30" Margin="12,0,0,0" Content="Search" Click="btnSearch_Click"/>
             <TextBox x:Name="tbSearch" Height="30" VerticalAlignment="Center" ToolTip="Search Bar" TextChanged="tbFilter_TextChanged"/>
         </DockPanel>
 
@@ -39,9 +40,9 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="5"/>
-                    </Grid.ColumnDefinitions> 
-                    
-                    <ListBox x:Name="lbStaffList" Margin="0" IsHitTestVisible="True" Focusable="True" />
+                    </Grid.ColumnDefinitions>
+
+                    <ListBox x:Name="lbStaffList" Margin="0" IsHitTestVisible="True" Focusable="True" PreviewMouseLeftButtonUp="lbStaffList_ItemClicked"/>
                     <!-- Optional splitter against center -->
                     <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Right"
 
@@ -61,7 +62,7 @@
                     <GridSplitter Grid.Column="0" Width="5" HorizontalAlignment="Left"
                                   Background="#22000000" ShowsPreview="True"/>
                     
-                    <ListBox x:Name="lbFilteredStaffList" Grid.Column="1" Margin="0" />
+                    <ListBox x:Name="lbFilteredStaffList" Grid.Column="1" Margin="0" PreviewMouseLeftButtonUp="lbFilteredStaffList_ItemClicked" />
                 </Grid>
             </GroupBox>
         </Grid>
@@ -77,10 +78,10 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Text="Name:" VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <TextBox x:Name="NameBox" Grid.Column="1" Height="28"/>
+            <TextBox x:Name="txtNameBox" Grid.Column="1" Height="28"/>
 
             <TextBlock Grid.Column="3" Text="Number:" VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <TextBox x:Name="NumberBox" Grid.Column="4" Height="28"/>
+            <TextBox x:Name="txtNumberBox" Grid.Column="4" Height="28"/>
         </Grid>
 
         <!-- Keyboard shortcut display -->
@@ -98,6 +99,46 @@
                 <TextBlock x:Name="StatusText" Text="Ready" />
             </StatusBarItem>
         </StatusBar>
+
+
+        <Popup x:Name="adminPopup" IsOpen="False" Placement="Center">
+            <Border BorderBrush="Black" BorderThickness="1" Background="LightYellow" Padding="10">
+                <StackPanel Width="350">
+
+                    <TextBlock Text="Admin Control Panel" FontSize="14" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+                    <!-- Grid layout for labels and textboxes -->
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Staff ID:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBox x:Name="txtAdminStaffID" Grid.Column="1" Height="28" IsReadOnly="True" Margin="0,0,0,5"/>
+
+                        <TextBlock Grid.Column="3" Text="Staff Name:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBox x:Name="txtAdminStaffName" Grid.Column="4" Height="28" Margin="0,0,0,5"/>
+                    </Grid>
+
+                    <!-- Buttons -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+                        <Button Content="Add" Width="70" Margin="5,0" />
+                        <Button Content="Update" Width="70" Margin="5,0" />
+                        <Button Content="Delete" Width="70" Margin="5,0" />
+                    </StackPanel>
+
+                    <!-- Close button -->
+                    <Button Content="Close" Width="70" HorizontalAlignment="Center" Click="ClosePopup_Click"/>
+                </StackPanel>
+            </Border>
+        </Popup>
+
+
+
     </Grid>
 </Window>
 
