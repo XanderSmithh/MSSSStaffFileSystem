@@ -1,175 +1,215 @@
-﻿using System.Text;
+﻿using System;
+using System.Linq;
 using System.Windows;
-using StaffFileManager;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using StaffFileManager;
 
 namespace MSSSStaffFileSystem
 {
     public partial class MainWindow : Window
     {
-        DictionaryManager dictionaryManager = new DictionaryManager();
-        FileManager fileManager = new FileManager();
+        private StaffManager staffManager;
+        private bool isDictionarySorted = false;
+
+        // Constructor & Loaded
         public MainWindow()
         {
             InitializeComponent();
-            this.Loaded += MainWindow_Loaded;
+            staffManager = new StaffManager();
+            DataContext = this;
+            Loaded += MainWindow_Loaded;
         }
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            dictionaryManager.PopulateStaffList();
             DisplayStaffList();
+        }
+
+        // Status Strip
+        private void SetStatusMsg(string message)
+        {
+            if (StatusText != null)
+                StatusText.Text = message;
         }
 
 
 
-        // BUTTON METHODS
 
-        private void btnAdminAdd_Click(object sender, RoutedEventArgs e)
+        // GUI Display Methods
+        private void DisplayStaffList()
         {
-            var newStaff = CreateStaff(); 
-            if (newStaff.HasValue) 
+            StatusText.Text = "";
+            try
             {
-                AddToStaffList(newStaff.Value.staffId, newStaff.Value.staffName);
-                DisplayStaffList();
+                lbStaffList.Items.Clear();
+                foreach (var kvp in staffManager.GetDictionary())
+                    lbStaffList.Items.Add($"[{kvp.Key}, {kvp.Value}]");
+            }
+            catch
+            {
+                SetStatusMsg("Error displaying staff list.");
             }
         }
 
-        private void btnAdminUpdate_Click(object sender, RoutedEventArgs e)
+        private void DisplayFilteredStaffList(string filter)
         {
-            UpdateStaff();
-            DisplayStaffList();
-        }
-
-        private void btnAdminDelete_Click(object sender, RoutedEventArgs e)
-        {
-            DeleteStaff();
-            DisplayStaffList();
-        }
-
-        private void btnAdminClear_Click(object sender, RoutedEventArgs e)
-        {
-            txtAdminStaffID.Text = string.Empty;
-            txtAdminStaffName.Text = string.Empty;
-        }
-
-        private void btnClosePopup_Click(object sender, RoutedEventArgs e)
-        {
-            adminPopup.IsOpen = false;
-            fileManager.SaveAsCsv(dictionaryManager.ReturnStaffList());
-        }
-
-        private void btnSearch_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("I do nothing lol...");
-        }
-
-
-
-
-
-        // GUI METHODS
-
-        public void DisplayStaffList()
-        {
-            lbStaffList.Items.Clear();
-            foreach (var kvp in dictionaryManager.ReturnStaffList())
+            StatusText.Text = "";
+            try
             {
-                lbStaffList.Items.Add($"[{kvp.Key}, {kvp.Value}]");
-            }
-        }
+                lbFilteredStaffList.Items.Clear();
+                if (string.IsNullOrWhiteSpace(filter)) return;
 
-        public void DisplayFilteredStaffList(string filter)
-        {
-            dictionaryManager.ClearSortedStaffList();
-            lbFilteredStaffList.Items.Clear();
+                var filtered = staffManager.GetDictionary()
+                    .Where(kvp => kvp.Value.Contains(filter, StringComparison.OrdinalIgnoreCase)
+                               || kvp.Key.ToString().Contains(filter));
 
-            if (string.IsNullOrWhiteSpace(filter)) return;
-            foreach (var kvp in dictionaryManager.ReturnStaffList())
-            {
-                if (kvp.Value.Contains(filter, StringComparison.OrdinalIgnoreCase) || // Checks for matching KvP
-                    kvp.Key.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase))
-                {
-                    dictionaryManager.InsertIntoSortedStaffList(kvp.Key, kvp.Value);
+                if (isDictionarySorted)
+                    filtered = filtered.OrderBy(kvp => kvp.Key);
+
+                foreach (var kvp in filtered)
                     lbFilteredStaffList.Items.Add($"[{kvp.Key}, {kvp.Value}]");
-                }
             }
-        }
-
-        private void tbFilter_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            string filter = tbSearch.Text;
-            DisplayFilteredStaffList(filter);
-        }
-
-        private void lbFilteredStaffList_ItemClicked(object sender, MouseButtonEventArgs e)
-        {
-            if (lbFilteredStaffList.SelectedItem != null)
+            catch
             {
-                string selectedItem = lbFilteredStaffList.SelectedItem.ToString();
-                PopulateStaffTextBox(selectedItem);
+                SetStatusMsg("Error filtering staff list.");
             }
         }
 
-        private void lbStaffList_ItemClicked(object sender, MouseButtonEventArgs e)
+
+
+
+        // Button Methods
+        private void BtnToggleDirectory_Click(object sender, RoutedEventArgs e)
+        {
+            StatusText.Text = "";
+            staffManager.SwitchDictionary();
+            isDictionarySorted = staffManager.IsSorted;
+            DisplayStaffList();
+
+            SetStatusMsg("Dictionary has been changed!");
+        }
+
+        private void BtnAdminAdd_Click(object sender, RoutedEventArgs e)
+        {
+            StatusText.Text = "";
+            var newStaff = CreateStaff();
+            if (newStaff.HasValue)
+            {
+                staffManager.AddStaff(newStaff.Value.staffId, newStaff.Value.staffName);
+                DisplayStaffList();
+                SetStatusMsg("Staff User has been Created!");
+            }
+        }
+
+        private void BtnAdminUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            StatusText.Text = "";
+            if (int.TryParse(txtAdminStaffID.Text, out int id))
+            {
+                staffManager.UpdateStaff(id, txtAdminStaffName.Text);
+                DisplayStaffList();
+                SetStatusMsg("Staff User has been Updated!");
+
+                txtNameBox.Text = string.Empty;
+                txtNumberBox.Text = string.Empty;
+            }
+            else
+            {
+                SetStatusMsg("Invalid staff ID for update.");
+            }
+        }
+
+        private void BtnAdminDelete_Click(object sender, RoutedEventArgs e)
+        {
+            StatusText.Text = "";
+            if (int.TryParse(txtAdminStaffID.Text, out int id))
+            {
+                staffManager.DeleteStaff(id);
+                DisplayStaffList();
+                SetStatusMsg("Staff user has been Deleted Successfully!");
+
+                txtNameBox.Text = string.Empty;
+                txtNumberBox.Text = string.Empty;
+            }
+            else
+            {
+                SetStatusMsg("Failed to delete staff: invalid ID.");
+            }
+        }
+
+        private void BtnAdminClear_Click(object sender, RoutedEventArgs e)
+        {
+            txtAdminStaffID.Text = "";
+            txtAdminStaffName.Text = "";
+            SetStatusMsg("Values have been cleared from admin fields!");
+        }
+
+        private void BtnClosePopup_Click(object sender, RoutedEventArgs e)
+        {
+            StatusText.Text = "";
+            try
+            {
+                adminPopup.IsOpen = false;
+                FileManager.SaveCsvLines(staffManager.ConvertDictionary());
+                SetStatusMsg("Data has been saved as a Csv!");
+            }
+            catch
+            {
+                SetStatusMsg("Error saving CSV.");
+            }
+        }
+
+
+
+        // ListBox Item Clicks
+        private void LbStaffList_ItemClicked(object sender, MouseButtonEventArgs e)
         {
             if (lbStaffList.SelectedItem != null)
-            {
-                string selectedItem = lbStaffList.SelectedItem.ToString();
-                PopulateStaffTextBox(selectedItem);
-            }
+                PopulateStaffTextBox(lbStaffList.SelectedItem.ToString());
+        }
+
+        private void LbFilteredStaffList_ItemClicked(object sender, MouseButtonEventArgs e)
+        {
+            if (lbFilteredStaffList.SelectedItem != null)
+                PopulateStaffTextBox(lbFilteredStaffList.SelectedItem.ToString());
         }
 
         private void PopulateStaffTextBox(string selectedItem)
         {
-            string key = selectedItem.Split(',')[1];
-            string value = selectedItem.Split(',')[0];
-
-            txtNameBox.Text = key.Trim(']', ' ');
-            txtNumberBox.Text = value.Trim('[',' ');
+            StatusText.Text = "";
+            try
+            {
+                var parts = selectedItem.Trim('[', ']').Split(',');
+                txtNumberBox.Text = parts[0].Trim();
+                txtNameBox.Text = parts[1].Trim();
+            }
+            catch
+            {
+                SetStatusMsg("Error populating textboxes.");
+            }
         }
 
-        public void FocusStaffNameField()
+        private void TbFilter_TextChanged(object sender, TextChangedEventArgs e)
         {
-            txtNameBox.Text = string.Empty;
-            txtNameBox.Focus();
-        }
-
-        public void FocusNumberNameField()
-        {
-            txtNumberBox.Text = string.Empty;
-            txtNumberBox.Focus();
-        }
-
-        private void AdminGuiValueAssign()
-        {
-            txtAdminStaffID.Text = txtNumberBox.Text;
-            txtAdminStaffName.Text = txtNameBox.Text;
+            DisplayFilteredStaffList(tbSearch.Text);
         }
 
 
 
 
-        // KEYBIND METHODS
-
+        // Keybind Methods
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt) && e.Key == Key.F || e.SystemKey == Key.F)
             {
                 FocusStaffNameField();
-                e.Handled = true; 
+                e.Handled = true;
             }
 
             else if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt) && e.Key == Key.D || e.SystemKey == Key.D)
             {
                 FocusNumberNameField();
-                e.Handled = true; 
+                e.Handled = true;
             }
 
             else if (e.Key == Key.Tab)
@@ -187,7 +227,7 @@ namespace MSSSStaffFileSystem
                     PopulateStaffTextBox(selectedItem);
                     lbFilteredStaffList.UnselectAll();
                 }
-                e.Handled = true; 
+                e.Handled = true;
             }
 
             else if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt) && e.Key == Key.A || e.SystemKey == Key.A)
@@ -200,64 +240,57 @@ namespace MSSSStaffFileSystem
             else if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt) && e.Key == Key.L || e.SystemKey == Key.L)
             {
                 adminPopup.IsOpen = false;
-                fileManager.SaveAsCsv(dictionaryManager.ReturnStaffList());
+                FileManager.SaveCsvLines(staffManager.ConvertDictionary());
                 e.Handled = true;
             }
         }
 
-
-
-
-        // ADMIN GUI METHODS
-
-        public (int staffId, string staffName)? CreateStaff()
+        private void FocusStaffNameField()
         {
-            if (!string.IsNullOrWhiteSpace(txtAdminStaffName.Text))
-            {
-                string staffName = txtAdminStaffName.Text;
-                int staffId;
-                var staffList = dictionaryManager.ReturnStaffList();
-
-                var rnd = new Random();
-
-                // Gets a random 77 number whilst ensuring it's not duplicating an existing number
-                do
-                {
-                    staffId = 770000000 + rnd.Next(0, 10000000);
-                } while (staffList.ContainsKey(staffId)); // ensure unique
-
-                return (staffId, staffName);
-            }
-
-            return null; // nothing to create
+            txtNameBox.Text = "";
+            txtNameBox.Focus();
         }
 
-        private void UpdateStaff()
+        private void FocusNumberNameField()
         {
-            string staffName = txtAdminStaffName.Text;
-            if (int.TryParse(txtAdminStaffID.Text, out int staffId) && !string.IsNullOrWhiteSpace(staffName))
+            txtNumberBox.Text = "";
+            txtNumberBox.Focus();
+        }
+
+
+
+        // Admin GUI Methods
+        private void AdminGuiValueAssign()
+        {
+            txtAdminStaffID.Text = txtNumberBox.Text;
+            txtAdminStaffName.Text = txtNameBox.Text;
+        }
+
+        private (int staffId, string staffName)? CreateStaff()
+        {
+            StatusText.Text = "";
+            try
             {
-                if (dictionaryManager.ReturnStaffList().ContainsKey(staffId))
+                if (!string.IsNullOrWhiteSpace(txtAdminStaffName.Text))
                 {
-                    dictionaryManager.UpdateKvpStaffList(staffId, staffName);
+                    string staffName = txtAdminStaffName.Text;
+                    int staffId;
+                    var rnd = new Random();
+
+                    do
+                    {
+                        staffId = 770000000 + rnd.Next(0, 10000000);
+                    } while (staffManager.GetDictionary().ContainsKey(staffId));
+
+                    return (staffId, staffName);
                 }
+                return null;
             }
-        }
-
-        private void DeleteStaff()
-        {
-            if (int.TryParse(txtAdminStaffID.Text, out int staffId))
+            catch
             {
-                dictionaryManager.RemoveKvpStaffList(staffId);
+                SetStatusMsg("Error creating staff.");
+                return null;
             }
         }
-
-        private void AddToStaffList(int staffId, string staffName)
-        {
-            dictionaryManager.InsertIntoStaffList(staffId, staffName);
-        }
-
-
-
     }
 }

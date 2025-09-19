@@ -21,8 +21,8 @@
 
         <!-- Search bar + action button -->
         <DockPanel Grid.Row="0" LastChildFill="True" Margin="0,0,0,12">
-            <Button x:Name="btnSearch" DockPanel.Dock="Right" Width="100" Height="30" Margin="12,0,0,0" Content="Search" Click="btnSearch_Click"/>
-            <TextBox x:Name="tbSearch" Height="30" VerticalAlignment="Center" ToolTip="Search Bar" TextChanged="tbFilter_TextChanged"/>
+            <Button x:Name="btnToggleDirectory" DockPanel.Dock="Left" Width="100" Height="30" Margin="12,0,0,0" Content="Toggle Dictionary" Click="BtnToggleDirectory_Click"/>
+            <TextBox x:Name="tbSearch" Height="30" VerticalAlignment="Center" ToolTip="Search Bar" TextChanged="TbFilter_TextChanged"/>
         </DockPanel>
 
         <!-- Dual listboxes with move buttons -->
@@ -30,26 +30,28 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
-                <!-- center controls -->
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <!-- Left list -->
-            <GroupBox Header="All Staff ListBox" Margin="0,0,8,0" >
+            <GroupBox Header="All Staff ListBox" Margin="0,0,8,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="5"/>
                     </Grid.ColumnDefinitions>
 
-                    <ListBox x:Name="lbStaffList" Margin="0" IsHitTestVisible="False" Focusable="True" PreviewMouseLeftButtonUp="lbStaffList_ItemClicked"/>
-                    <!-- Optional splitter against center -->
-                    <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Right"
+                    <ListBox x:Name="lbStaffList"
+                             Margin="0"
+                             IsHitTestVisible="True"
+                             Focusable="True"
+                             SelectedValuePath="Key"
+                             PreviewMouseLeftButtonUp="LbStaffList_ItemClicked"/>
 
+                    <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Right"
                                   Background="#22000000" ShowsPreview="True"/>
                 </Grid>
             </GroupBox>
-
 
             <!-- Right list -->
             <GroupBox Grid.Column="2" Header="Filtered Staff Listbox" Margin="8,0,0,0">
@@ -58,11 +60,11 @@
                         <ColumnDefinition Width="5"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <!-- Optional splitter against center -->
+
                     <GridSplitter Grid.Column="0" Width="5" HorizontalAlignment="Left"
                                   Background="#22000000" ShowsPreview="True"/>
-                    
-                    <ListBox x:Name="lbFilteredStaffList" Grid.Column="1" Margin="0" PreviewMouseLeftButtonUp="lbFilteredStaffList_ItemClicked" />
+
+                    <ListBox x:Name="lbFilteredStaffList" Grid.Column="1" Margin="0" PreviewMouseLeftButtonUp="LbFilteredStaffList_ItemClicked"/>
                 </Grid>
             </GroupBox>
         </Grid>
@@ -87,24 +89,21 @@
         <!-- Keyboard shortcut display -->
         <Border Grid.Row="3" BorderBrush="#33000000" BorderThickness="1" CornerRadius="6" Padding="14" Background="White">
             <TextBlock x:Name="ShortcutDisplay"
-
                        Text="Keyboard Shortcut Display"
-
                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
 
         <!-- Status bar -->
         <StatusBar Grid.Row="4" Margin="0,12,0,0">
             <StatusBarItem>
-                <TextBlock x:Name="StatusText" Text="Ready" />
+                <TextBlock x:Name="StatusText" Text="Ready"/>
             </StatusBarItem>
         </StatusBar>
 
-
+        <!-- Admin Popup -->
         <Popup x:Name="adminPopup" IsOpen="False" Placement="Center">
             <Border BorderBrush="Black" BorderThickness="1" Background="LightYellow" Padding="10">
                 <StackPanel Width="350">
-
                     <TextBlock Text="Admin Control Panel" FontSize="14" HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
                     <!-- Grid layout for labels and textboxes -->
@@ -126,21 +125,17 @@
 
                     <!-- Buttons -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
-                        <Button Content="Add" Width="70" Margin="5,0" Click="btnAdminAdd_Click"/>
-                        <Button Content="Update" Width="70" Margin="5,0" Click="btnAdminUpdate_Click"/>
-                        <Button Content="Delete" Width="70" Margin="5,0" Click="btnAdminDelete_Click"/>
-                        <Button Content="Clear" Width="70" Margin="5,0" Click="btnAdminClear_Click"/>
+                        <Button Content="Add" Width="70" Margin="5,0" Click="BtnAdminAdd_Click"/>
+                        <Button Content="Update" Width="70" Margin="5,0" Click="BtnAdminUpdate_Click"/>
+                        <Button Content="Delete" Width="70" Margin="5,0" Click="BtnAdminDelete_Click"/>
+                        <Button Content="Clear" Width="70" Margin="5,0" Click="BtnAdminClear_Click"/>
                     </StackPanel>
 
                     <!-- Close button -->
-                    <Button Content="Close" Width="70" HorizontalAlignment="Center" Click="btnClosePopup_Click"/>
+                    <Button Content="Close" Width="70" HorizontalAlignment="Center" Click="BtnClosePopup_Click"/>
                 </StackPanel>
             </Border>
         </Popup>
 
-
-
     </Grid>
 </Window>
-
- 
