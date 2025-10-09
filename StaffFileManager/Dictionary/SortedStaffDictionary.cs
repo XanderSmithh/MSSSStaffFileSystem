@@ -1,41 +1,39 @@
-﻿using System;
+﻿using StaffFileManager.Dictionary;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace StaffFileManager
 {
-    public class StaffDictionary : IDictionaryManager
+    public class SortedStaffDictionary : IDictionaryManager
     {
-        private Dictionary<int, string> staffList;
+        private SortedDictionary<int, string> sortedStaffList;
 
-        public StaffDictionary()
+        public SortedStaffDictionary()
         {
-            staffList = new Dictionary<int, string>();
-            PopulateDictionary();
-        }
-
-        public void PopulateDictionary()
-        {
-            ConvertListToDictionary(FileManager.LoadCsvLines());
+            sortedStaffList = new SortedDictionary<int, string>();
         }
 
         public IDictionary<int, string> ReturnDictionary()
         {
-            return staffList;
+            return sortedStaffList;
         }
 
         public void ClearDictionary()
         {
-            if (staffList.Count > 0)
+            if (sortedStaffList.Count > 0)
             {
-                staffList.Clear();
+                sortedStaffList.Clear();
             }
         }
 
         public bool CreateItem(int key, string value)
         {
-            if (!string.IsNullOrWhiteSpace(value) && !staffList.ContainsKey(key))
+            if (!string.IsNullOrWhiteSpace(value) && !sortedStaffList.ContainsKey(key))
             {
-                staffList.Add(key, value);
+                sortedStaffList.Add(key, value);
                 return true;
             }
             return false;
@@ -43,9 +41,9 @@ namespace StaffFileManager
 
         public bool DeleteItem(int key)
         {
-            if (staffList.ContainsKey(key))
+            if (sortedStaffList.ContainsKey(key))
             {
-                staffList.Remove(key);
+                sortedStaffList.Remove(key);
                 return true;
             }
             return false;
@@ -53,15 +51,15 @@ namespace StaffFileManager
 
         public bool UpdateItem(int key, string value)
         {
-            if (!string.IsNullOrWhiteSpace(value) && staffList.ContainsKey(key))
+            if (!string.IsNullOrWhiteSpace(value) && sortedStaffList.ContainsKey(key))
             {
-                staffList[key] = value;
+                sortedStaffList[key] = value;
                 return true;
             }
             return false;
         }
 
-        public void ConvertListToDictionary(List<string> csvLines )
+        public void ConvertListToDictionary(List<string> csvLines)
         {
             {
                 foreach (var line in csvLines)
@@ -70,8 +68,8 @@ namespace StaffFileManager
                     if (parts.Length >= 2 && int.TryParse(parts[0].Trim(), out int staffId))
                     {
                         string staffName = parts[1].Trim();
-                        if (!staffList.ContainsKey(staffId))
-                            staffList.Add(staffId, staffName);
+                        if (!sortedStaffList.ContainsKey(staffId))
+                            sortedStaffList.Add(staffId, staffName);
                     }
                 }
             }
@@ -79,7 +77,8 @@ namespace StaffFileManager
 
         public List<string> ConvertDictionaryToList()
         {
-            return staffList.Select(kvp => $"{kvp.Key},{kvp.Value}").ToList();
+            return sortedStaffList.Select(kvp => $"{kvp.Key},{kvp.Value}").ToList();
         }
+
     }
 }

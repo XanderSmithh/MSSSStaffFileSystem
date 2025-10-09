@@ -87,11 +87,13 @@
         </Grid>
 
         <!-- Keyboard shortcut display -->
-        <Border Grid.Row="3" BorderBrush="#33000000" BorderThickness="1" CornerRadius="6" Padding="14" Background="White">
-            <TextBlock x:Name="ShortcutDisplay"
-                       Text="Keyboard Shortcut Display"
+        <GroupBox Grid.Row="3" Header="Keyboard Shortcuts">
+            <Border Grid.Row="3" BorderBrush="#33000000" BorderThickness="1" CornerRadius="6" Padding="14" Background="White">
+                <TextBlock x:Name="ShortcutDisplay"
+                       Text="Open Admin Panel ( Alt + A )  ||  Close Admin Panel ( Alt + L )  ||  Clear Name ( Alt + F )  ||  Clear Number ( Alt + D )"
                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        </Border>
+            </Border>
+        </GroupBox>
 
         <!-- Status bar -->
         <StatusBar Grid.Row="4" Margin="0,12,0,0">

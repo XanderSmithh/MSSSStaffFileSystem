@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StaffFileManager
+namespace StaffFileManager.FileIO
 {
     public static class FileManager
     {
@@ -17,8 +17,9 @@ namespace StaffFileManager
             var linesList = new List<string>();
             try
             {
-                string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MalinStaffNamesV3.csv");
-                linesList = File.ReadAllLines(filePath)
+                string path = "C:\\Users\\30013550\\source\\repos\\MSSSStaffFileSystem\\StaffFileManager\\Data";
+                string fileName = Path.Combine(path, "MalinStaffNamesV3.csv");
+                linesList = File.ReadAllLines(fileName)
                                 .Where(line => !string.IsNullOrWhiteSpace(line))
                                 .ToList();
             }
